@@ -1,0 +1,2 @@
+# MoonCoin
+ a simple blockchain
