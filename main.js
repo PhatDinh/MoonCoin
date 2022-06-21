@@ -1,12 +1,21 @@
 const SHA256 = require('crypto-js/sha256');
 
+
+class Transaction
+{
+    constructor(fromAddress,toAddress,amount)
+    {
+        this.fromAddress=fromAddress;
+        this.toAddress=toAddress;
+        this.amount=amount;
+    }
+}
 class Block
 {
-    constructor(index,timestamp,data,previousHash= '')
+    constructor(timestamp,transactions,previousHash= '')
     {
-        this.index=index;
         this.timestamp=timestamp;
-        this.data=data;
+        this.transactions=transactions;
         this.previousHash=previousHash;
         this.hash=this.calculateHash();
         this.nonce=0;
@@ -33,10 +42,39 @@ class Blockchain{
     {
         this.chain = [this.createGenesisBlock()];
         this.difficulty=2;
+        this.miningReward = 100;
+        this.pendingTransactions= [];
+    }
+
+    minePendingTransactions(miningRewardAdress)
+    {
+        let block=new Block(Date.now(),this.pendingTransactions);
+        block.mineBlock(this.difficulty);
+
+        this.chain.push(block);
+        this.pendingTransactions= [];
+    }
+
+    createTransaction(transaction)
+    {
+        this.pendingTransactions.push(transaction);
+    }
+
+    getBalanceOfAddress(yourAddress)
+    {
+        let balance =0;
+        for (const block of this.chain)
+        {
+            for (const trans of block.transactions)
+            {
+                if (trans.toAddress==yourAddress) balance+=trans.amount;
+                if (trans.fromAddress==yourAddress) balance-=trans.amount;
+            }
+        }
     }
 
     createGenesisBlock(){
-        return new Block(0,"21/06/2022","Genesis Bloc","0");
+        return new Block("21/06/2022","Genesis Bloc","0");
     }
 
     addBlock(newBlock)
@@ -64,9 +102,3 @@ class Blockchain{
 
 
 let testcoin= new Blockchain();
-testcoin.addBlock(new Block(1,"21/06/2022",{amount:4}));
-testcoin.addBlock(new Block(2,"21/06/2022",{amount:5}));
-testcoin.addBlock(new Block(3,"21/06/2022",{amount:6}));
-testcoin.addBlock(new Block(4,"21/06/2022",{amount:2}));
-
-console.log(JSON.stringify(testcoin,null,4));
