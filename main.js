@@ -37,6 +37,17 @@ class Blockchain{
     getLatestBlock(){
         return this.chain[this.chain.length-1];
     }
+
+    checkChain(){
+        for (let i=1;i<this.chain.length;i++)
+        {
+            const cur=this.chain[i];
+            const prev=this.chain[i-1];
+            if (cur.previousHash!=prev.hash) return false;
+            if (cur.hash!=this.calculateHash()) return false;
+        }
+        return true;
+    }
 }
 
 
